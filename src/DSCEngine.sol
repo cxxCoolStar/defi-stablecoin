@@ -129,7 +129,7 @@ contract DSCEngine is ReentrancyGuard {
     {
         s_collateralDeposited[msg.sender][tokenCollateralAddress] += amountColateral;
         emit CollateralDeposited(msg.sender, tokenCollateralAddress, amountColateral);
-        bool sucess = IERC20(tokenCollateralAddress).transferFrom(msg.sender, address(this), amountColateral);
+        bool sucess = ERC20(tokenCollateralAddress).transferFrom(msg.sender, address(this), amountColateral);
         if (!sucess) {
             revert DSCEngine_TransferFailed();
         }
@@ -197,10 +197,9 @@ contract DSCEngine is ReentrancyGuard {
         return totalCollateralValueInUsd;
     }
 
-    function getUsdValue(address token, unit256 amount) public view returns (uint256) {
+    function getUsdValue(address token, uint256 amount) public view returns (uint256) {
         AggregatorV3Interface priceFeed = AggregatorV3Interface(s_priceFeeds[token]);
-        (, uint256 price,,,) = priceFeed.latestRoundData();
-
+        (, int256 price,,,) = priceFeed.latestRoundData();
         return (uint256(price) * ADDITIONAL_FEED_PRICISION) * amount / PRICISION;
     }
 }
